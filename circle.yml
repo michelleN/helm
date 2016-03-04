@@ -22,7 +22,5 @@ dependencies:
 
 test:
   override:
-    - cd $GOPATH/src/$IMPORT_PATH
-    - pwd
-    - make bootstrap test
+    - cd $GOPATH/src/$IMPORT_PATH && make bootstrap test
 
