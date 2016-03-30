@@ -29,8 +29,10 @@ import (
 	"strings"
 )
 
+var gcsURLRegex = `/^(gs?:\/\/)?([\da-z\.-]+)\.([a-z])([\/\w \.-]*)*\/?$/`
+
 // GCSRepoURLMatcher matches the GCS repository URL format (gs://<bucket>).
-var GCSRepoURLMatcher = regexp.MustCompile("gs://(.*)")
+var GCSRepoURLMatcher = regexp.MustCompile(gcsURLRegex)
 
 // GCSChartURLMatcher matches the GCS chart URL format (gs://<bucket>/<name>-<version>.tgz).
 var GCSChartURLMatcher = regexp.MustCompile("gs://(.*)/(.*)-(.*).tgz")
@@ -75,6 +77,7 @@ func NewGCSRepo(URL, credentialName, repoName string, httpClient *http.Client) (
 
 func newGCSRepo(r *Repo, httpClient *http.Client) (*GCSRepo, error) {
 	URL := r.GetURL()
+	fmt.Printf("REPO URL: %s", URL)
 	m := GCSRepoURLMatcher.FindStringSubmatch(URL)
 	if len(m) != 2 {
 		return nil, fmt.Errorf("URL must be of the form gs://<bucket>, was %s", URL)
