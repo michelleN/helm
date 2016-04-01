@@ -30,10 +30,10 @@ import (
 var ErrAlreadyInstalled = errors.New("Already Installed")
 
 func init() {
-	addCommands(dmCmd())
+	addCommands(serverCmd())
 }
 
-func dmCmd() cli.Command {
+func serverCmd() cli.Command {
 	return cli.Command{
 		Name:  "server",
 		Usage: "Manage Helm server-side components",
