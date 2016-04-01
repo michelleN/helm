@@ -37,6 +37,8 @@ type Installer struct {
 	Resourcifier map[string]interface{}
 	// Manager params are used to render the manager manifest.
 	Manager map[string]interface{}
+	// Metadata for components
+	Metadata map[string]string
 }
 
 // NewInstaller creates a new Installer.
@@ -45,6 +47,7 @@ func NewInstaller() *Installer {
 		Expandybird:  map[string]interface{}{},
 		Resourcifier: map[string]interface{}{},
 		Manager:      map[string]interface{}{},
+		Metadata:     map[string]string{},
 	}
 }
 
@@ -102,8 +105,8 @@ kind: Namespace
 metadata:
   labels:
     app: helm
-    name: helm-namespace
-  name: helm
+    name: {{default "helm" .Metadata.Namespace}}-namespace
+  name: {{default "helm" .Metadata.Namespace}}
 ---
 apiVersion: v1
 kind: Service
@@ -112,7 +115,7 @@ metadata:
     app: helm
     name: expandybird-service
   name: expandybird-service
-  namespace: helm
+  namespace: {{default "helm" .Metadata.Namespace}}
 spec:
   ports:
   - name: expandybird
@@ -129,7 +132,7 @@ metadata:
     app: helm
     name: expandybird-rc
   name: expandybird-rc
-  namespace: helm
+  namespace: {{default "helm" .Metadata.Namespace}}
 spec:
   replicas: 2
   selector:
@@ -156,7 +159,7 @@ metadata:
     app: helm
     name: resourcifier-service
   name: resourcifier-service
-  namespace: helm
+  namespace: {{default "helm" .Metadata.Namespace}}
 spec:
   ports:
   - name: resourcifier
@@ -173,7 +176,7 @@ metadata:
     app: helm
     name: resourcifier-rc
   name: resourcifier-rc
-  namespace: helm
+  namespace: {{default "helm" .Metadata.Namespace}}
 spec:
   replicas: 2
   selector:
@@ -200,7 +203,7 @@ metadata:
     app: helm
     name: manager-service
   name: manager-service
-  namespace: helm
+  namespace: {{default "helm" .Metadata.Namespace}}
 spec:
   ports:
   - name: manager
@@ -217,7 +220,7 @@ metadata:
     app: helm
     name: manager-rc
   name: manager-rc
-  namespace: helm
+  namespace: {{default "helm" .Metadata.Namespace}}
 spec:
   replicas: 1
   selector:

@@ -78,6 +78,11 @@ func serverCmd() cli.Command {
 						Usage:  "The full image name of the Docker image for manager.",
 						EnvVar: "HELM_MANAGER_IMAGE",
 					},
+					cli.StringFlag{
+						Name:   "namespace",
+						Usage:  "The namespace that helm server components live in. Helm is the default namespace.",
+						EnvVar: "HELM_SERVER_NAMESPACE",
+					},
 				},
 				Action: func(c *cli.Context) { run(c, installServer) },
 			},
@@ -126,6 +131,8 @@ func installServer(c *cli.Context) error {
 	resImg := c.String("resourcifier-image")
 	ebImg := c.String("expandybird-image")
 	manImg := c.String("manager-image")
+	namespace := c.String("namespace")
+	//TODO: don't forget to set helm env variable
 
 	dryRun := c.Bool("dry-run")
 	kubectlPath := c.GlobalString("kubectl")
@@ -135,6 +142,7 @@ func installServer(c *cli.Context) error {
 	i.Manager["Image"] = manImg
 	i.Resourcifier["Image"] = resImg
 	i.Expandybird["Image"] = ebImg
+	i.Metadata["Namespace"] = namespace
 
 	out, err := i.Install(runner)
 	if err != nil {
