@@ -19,6 +19,7 @@ package chartutil
 import (
 	"archive/tar"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -40,10 +41,17 @@ func Expand(dir string, r io.Reader) error {
 			return err
 		}
 
+		fmt.Println(header.Name)
 		path := filepath.Clean(filepath.Join(dir, header.Name))
+		fmt.Println(path)
 		info := header.FileInfo()
+		fmt.Printf("%#v", &info)
+		fmt.Printf("%v\n", info.Name())
+		fmt.Printf("%v\n", info.IsDir())
+		//TODO: put in some logic. if file is nested in a dir that doesn't exist, then create it
 		if info.IsDir() {
 			if err = os.MkdirAll(path, info.Mode()); err != nil {
+				fmt.Println(err)
 				return err
 			}
 			continue
@@ -51,11 +59,13 @@ func Expand(dir string, r io.Reader) error {
 
 		file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
 		if err != nil {
+			fmt.Println("something with op.open")
 			return err
 		}
 		defer file.Close()
 		_, err = io.Copy(file, tr)
 		if err != nil {
+			fmt.Println("copying")
 			return err
 		}
 	}

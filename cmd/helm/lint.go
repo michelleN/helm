@@ -21,9 +21,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
+	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/lint"
 )
 
@@ -55,19 +57,36 @@ func lintCmd(cmd *cobra.Command, args []string) error {
 		path = args[0]
 	}
 
-	// Guard: Error out of this is not a chart.
-	if _, err := os.Stat(filepath.Join(path, "Chart.yaml")); err != nil {
-		return errLintNoChart
-	}
+	if strings.HasSuffix(path, ".tgz") {
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		if err := os.Mkdir("alpine", 0700); err != nil {
+			return err
+		}
 
-	issues := lint.All(path)
+		if err := chartutil.Expand(".", f); err != nil {
+			fmt.Println("problem expanding")
+			return err
+		}
 
-	if len(issues) == 0 {
-		fmt.Println("Lint OK")
-	}
+	} else {
+		// Guard: Error out of this is not a chart.
+		if _, err := os.Stat(filepath.Join(path, "Chart.yaml")); err != nil {
+			return errLintNoChart
+		}
 
-	for _, i := range issues {
-		fmt.Printf("%s\n", i)
+		issues := lint.All(path)
+
+		if len(issues) == 0 {
+			fmt.Println("Lint OK")
+		}
+
+		for _, i := range issues {
+			fmt.Printf("%s\n", i)
+		}
 	}
 	return nil
 }
