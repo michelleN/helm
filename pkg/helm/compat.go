@@ -57,8 +57,12 @@ func GetReleaseContent(rlsName string) (*rls.GetReleaseContentResponse, error) {
 
 // UpdateRelease updates a release.
 // Soon to be deprecated helm UpdateRelease API.
-func UpdateRelease(rlsName string) (*rls.UpdateReleaseResponse, error) {
-	return NewClient(HelmHost(Config.ServAddr)).UpdateRelease(rlsName)
+func UpdateRelease(rlsName, chStr string, vals []byte, dryRun bool) (*rls.UpdateReleaseResponse, error) {
+	client := NewClient(HelmHost(Config.ServAddr))
+	if dryRun {
+		client.Option(DryRun())
+	}
+	return client.UpdateRelease(rlsName, chStr)
 }
 
 // InstallRelease runs an install for a release.

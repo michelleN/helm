@@ -77,7 +77,7 @@ func runInstall(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Chart path: %s\n", chartpath)
 	}
 
-	rawVals, err := vals()
+	rawVals, err := vals(installValues)
 	if err != nil {
 		return err
 	}
@@ -92,8 +92,8 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func vals() ([]byte, error) {
-	if installValues == "" {
+func vals(filename string) ([]byte, error) {
+	if filename == "" {
 		return []byte{}, nil
 	}
 	return ioutil.ReadFile(installValues)
