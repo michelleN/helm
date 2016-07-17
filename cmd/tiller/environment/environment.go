@@ -158,6 +158,14 @@ type KubeClient interface {
 	// by "\n---\n").
 	Delete(namespace string, reader io.Reader) error
 
+	// Apply applies changes to one or more resources. It also creates resources.
+	//
+	// namespace must contain a valid existing namespace.
+	//
+	// reader must contain a YAML stream (one or more YAML documents separated
+	// by "\n---\n").
+	Apply(namespace string, reader io.Reader) error
+
 	// Watch the resource in reader until it is "ready".
 	//
 	// For Jobs, "ready" means the job ran to completion (excited without error).
@@ -182,6 +190,14 @@ func (p *PrintingKubeClient) Create(ns string, r io.Reader) error {
 //
 // It only prints out the content to be deleted.
 func (p *PrintingKubeClient) Delete(ns string, r io.Reader) error {
+	_, err := io.Copy(p.Out, r)
+	return err
+}
+
+// Apply implements KubeClient apply.
+//
+// It prints out the values of what would be created or changed with a real KubeClient
+func (p *PrintingKubeClient) Apply(ns string, r io.Reader) error {
 	_, err := io.Copy(p.Out, r)
 	return err
 }

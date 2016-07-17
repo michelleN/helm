@@ -63,6 +63,18 @@ func (c *Client) Delete(namespace string, reader io.Reader) error {
 	return perform(c, namespace, reader, deleteResource)
 }
 
+func (c *Client) Apply(namespace string, reader io.Reader) error {
+	// taking in a stream containing resources
+
+	if err := perform(c, namespace, reader, applyResource); err != nil {
+		//rollback to old release mapping
+		// if rollback == err;
+		//  return err
+	}
+
+	return nil
+}
+
 // WatchUntilReady watches the resource given in the reader, and waits until it is ready.
 //
 // This function is mainly for hook implementations. It watches for a resource to
@@ -114,6 +126,18 @@ func perform(c *Client, namespace string, reader io.Reader, fn ResourceActorFunc
 	}
 	if count == 0 {
 		return fmt.Errorf("no objects passed to create")
+	}
+	return nil
+}
+
+func applyResource(info *resource.Info) error {
+	switch err := info.Get(); {
+	case errors.IsNotFound(err):
+		return createResource(info)
+	case err != nil: // apply annotation, create resource, and skip 3-way merge
+		// create resource
+	default:
+		// patch adams
 	}
 	return nil
 }

@@ -214,6 +214,22 @@ func (s *releaseServer) prepareUpdate(req *services.UpdateReleaseRequest) (*rele
 		return nil, fmt.Errorf("Given chart (%s-%v) must be a higher version than released chart (%s-%v)", givenChart, givenChartVersion, releasedChart, releasedChartVersion)
 	}
 
+	ts := timeconv.Now()
+	options := chartutil.ReleaseOptions{Name: req.Name, Time: ts, Namespace: s.env.Namespace}
+	valuesToRender, err := chartutil.ToRenderValues(req.Chart, req.Values, options)
+	if err != nil {
+		return nil, err
+	}
+
+	renderer := s.engine(req.Chart)
+	files, err := renderer.Render(req.Chart, valuesToRender)
+	if err != nil {
+		return nil, err
+	}
+	hooks, manifests := sortHooks(files)
+	fmt.Printf("\nhooks: %#v\n", hooks)
+	fmt.Printf("\nmanifests: %#v", manifests)
+
 	// Store an updated release.
 	updatedRelease := &release.Release{
 		Name:    req.Name,
@@ -326,6 +342,8 @@ func (s *releaseServer) prepareRelease(req *services.InstallReleaseRequest) (*re
 		Hooks:    hooks,
 		Version:  1,
 	}
+
+	fmt.Printf("\nrelease: \n%#v", rel)
 	return rel, nil
 }
 
