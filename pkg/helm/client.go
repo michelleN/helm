@@ -90,6 +90,17 @@ func (h *Client) InstallRelease(chStr, ns string, opts ...InstallOption) (*rls.I
 	return h.opts.rpcInstallRelease(chart, rls.NewReleaseServiceClient(c), ns, opts...)
 }
 
+// TestRelease runs tests for a release and returns the release response.
+func (h *Client) TestRelease(name string, opts ...TestOption) (*rls.TestReleaseResponse, error) {
+	c, err := grpc.Dial(h.opts.host, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	defer c.Close()
+
+	return h.opts.rpcTestRelease(name, rls.NewReleaseServiceClient(c), opts...)
+}
+
 // DeleteRelease uninstalls a named release and returns the response.
 //
 // Note: there aren't currently any supported DeleteOptions, but they are

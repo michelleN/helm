@@ -28,4 +28,5 @@ type Interface interface {
 	ReleaseStatus(rlsName string, opts ...StatusOption) (*rls.GetReleaseStatusResponse, error)
 	UpdateRelease(rlsName, chStr string, opts ...UpdateOption) (*rls.UpdateReleaseResponse, error)
 	ReleaseContent(rlsName string, opts ...ContentOption) (*rls.GetReleaseContentResponse, error)
+	TestRelease(rlsName string, opts ...TestOption) (*rls.TestReleaseResponse, error)
 }

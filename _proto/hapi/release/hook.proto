@@ -30,6 +30,7 @@ message Hook {
 		POST_DELETE = 4;
 		PRE_UPGRADE = 5;
 		POST_UPGRADE = 6;
+        POST_INSTALL_TEST = 7;
 	}
 	string name = 1;
 	// Kind is the Kubernetes kind.

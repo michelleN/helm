@@ -50,6 +50,8 @@ type options struct {
 	updateReq rls.UpdateReleaseRequest
 	// release uninstall options are applied directly to the uninstall release request
 	uninstallReq rls.UninstallReleaseRequest
+	// release test options
+	testReq rls.TestReleaseRequest
 }
 
 // Home specifies the location of helm home, (default = "$HOME/.helm").
@@ -212,6 +214,9 @@ type DeleteOption func(*options)
 // the defaults used when running the `helm upgrade` command.
 type UpdateOption func(*options)
 
+// TestOption -- TODO
+type TestOption func(*options)
+
 // RPC helpers defined on `options` type. Note: These actually execute the
 // the corresponding tiller RPC. There is no particular reason why these
 // are APIs are hung off `options`, they are internal to pkg/helm to remain
@@ -244,6 +249,18 @@ func (o *options) rpcInstallRelease(chr *cpb.Chart, rlc rls.ReleaseServiceClient
 	o.instReq.ReuseName = o.reuseName
 
 	return rlc.InstallRelease(context.TODO(), &o.instReq)
+}
+
+// Executes tiller.TestRelease RPC
+func (o *options) rpcTestRelease(name string, rlc rls.ReleaseServiceClient, opts ...TestOption) (*rls.TestReleaseResponse, error) {
+
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	o.testReq.Name = name
+
+	return rlc.TestRelease(context.TODO(), &o.testReq)
 }
 
 // Executes tiller.UninstallRelease RPC.

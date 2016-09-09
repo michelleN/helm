@@ -389,6 +389,31 @@ func (s *releaseServer) InstallRelease(c ctx.Context, req *services.InstallRelea
 	return res, err
 }
 
+func (s *releaseServer) TestRelease(c ctx.Context, req *services.TestReleaseRequest) (*services.TestReleaseResponse, error) {
+	if req.Name == "" {
+		return nil, errMissingRelease
+	}
+
+	// finds the non-deleted release with the given name
+	r, err := s.env.Releases.Get(req.Name)
+	if err != nil {
+		return nil, err
+	}
+	res := &services.TestReleaseResponse{Release: r}
+	for _, h := range r.Hooks {
+		fmt.Println(h)
+	}
+	//TODO: execute in go routines
+	for _, h := range r.Hooks {
+		if err := s.execHook([]*release.Hook{h}, r.Name, r.Namespace, postInstallTest); err != nil {
+
+			log.Printf("\nerror during POST INSTALL TEST (%s) %s\n ", h.Name, err)
+		}
+	}
+
+	return res, nil
+}
+
 // prepareRelease builds a release for an install operation.
 func (s *releaseServer) prepareRelease(req *services.InstallReleaseRequest) (*release.Release, error) {
 	if req.Chart == nil {
@@ -427,6 +452,13 @@ func (s *releaseServer) prepareRelease(req *services.InstallReleaseRequest) (*re
 		Hooks:    hooks,
 		Version:  1,
 	}
+
+	//TODO: take out
+	fmt.Println("printing hooks on prepare release")
+	for _, v := range hooks {
+		fmt.Println(v)
+	}
+
 	if len(notesTxt) > 0 {
 		rel.Info.Status.Notes = notesTxt
 	}
@@ -563,6 +595,7 @@ func (s *releaseServer) performRelease(r *release.Release, req *services.Install
 	// this stored in the future.
 	r.Info.Status.Code = release.Status_DEPLOYED
 	s.recordRelease(r, req.ReuseName)
+
 	return res, nil
 }
 

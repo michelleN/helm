@@ -65,6 +65,10 @@ service ReleaseService {
 	// UninstallRelease requests deletion of a named release.
 	rpc UninstallRelease(UninstallReleaseRequest) returns (UninstallReleaseResponse) {
 	}
+
+	// TestRelease requests runs tests of a named release.
+	rpc TestRelease(TestReleaseRequest) returns (TestReleaseResponse) {
+	}
 }
 
 // ListReleasesRequest requests a list of releases.
@@ -180,6 +184,16 @@ message UpdateReleaseRequest {
 
 // UpdateReleaseResponse is the response to an update request.
 message UpdateReleaseResponse {
+	hapi.release.Release release = 1;
+}
+
+// TestReleaseRequest is the request for running tests of a chart.
+message TestReleaseRequest {
+	string name = 1;
+}
+
+// TestReleaseResponse is the response from testing a release
+message TestReleaseResponse {
 	hapi.release.Release release = 1;
 }
 

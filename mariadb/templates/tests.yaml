@@ -1,0 +1,80 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Release.Name}}-mariadb-connect
+  labels:
+    expected-outcome: success
+  annotations:
+    "helm.sh/hook": post-install-test
+spec:
+  activeDeadlineSeconds: 60
+  template:
+    metadata:
+      name: {{.Release.Name}}-mariadb-connect
+    spec:
+      containers:
+      - name: {{.Release.Name}}-mariadb-connect
+        image: bitnami/mariadb:{{.Values.imageTag}}
+        command: ["mysql",  "--host={{.Release.Name}}-mariadb", "--user={{.Values.mariadbUser}}", "--password={{.Values.mariadbPassword}}"]
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Release.Name}}-mariadb-connect-fail
+  labels:
+    expected-outcome: fail
+  annotations:
+    "helm.sh/hook": post-install-test
+spec:
+  activeDeadlineSeconds: 60
+  template:
+    metadata:
+      name: {{.Release.Name}}-mariadb-connect-fail
+    spec:
+      containers:
+      - name: {{.Release.Name}}-mariadb-connect-fail
+        image: bitnami/mariadb:{{.Values.imageTag}}
+        command: ["mysql",  "--host={{.Release.Name}}-mariadb", "--user={{randAlpha 6}}", "--password={{randAlpha 6}}"]
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Release.Name}}-mariadb-connect-db
+  labels:
+    expected-outcome: success
+  annotations:
+    "helm.sh/hook": post-install-test
+spec:
+  activeDeadlineSeconds: 60
+  template:
+    metadata:
+      name: {{.Release.Name}}-mariadb-connect-db
+    spec:
+      containers:
+      - name: {{.Release.Name}}-mariadb-connect-db
+        image: bitnami/mariadb:10.1.14-r3
+        command: ["mysql",  "--host={{.Release.Name}}-mariadb", "--user={{.Values.mariadbUser}}", "--password={{.Values.mariadbPassword}} {{.Values.mariadbDatabase}}"]
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Release.Name}}-mariadb-connect-db-fail
+  labels:
+    expected-outcome: fail
+  annotations:
+    "helm.sh/hook": post-install-test
+spec:
+  activeDeadlineSeconds: 60
+  template:
+    metadata:
+      name: {{.Release.Name}}-mariadb-connect-db-fail
+    spec:
+      containers:
+      - name: {{.Release.Name}}-mariadb-connect-db-fail
+        image: bitnami/mariadb:{{.Values.imageTag}}
+        command: ["mysql",  "--host={{.Release.Name}}-mariadb", "--user={{.Values.mariadbUser}}", "--password={{.Values.mariadbPassword}} {{randAlpha 6}}"]
+      restartPolicy: Never
+
