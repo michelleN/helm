@@ -1,0 +1,20 @@
+# Default values for otherchart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+mychart:
+  Name: nestedchild
+  image:
+    repository: alpine
+    pullPolicy: IfNotPresent
+  service:
+    name: alpine
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 80
+  resources:
+    limits:
+      cpu: 50m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
