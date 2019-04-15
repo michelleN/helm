@@ -17,30 +17,30 @@ limitations under the License.
 package main
 
 import (
-	"io"
+	"testing"
+	"time"
 
-	"github.com/spf13/cobra"
-
-	"helm.sh/helm/pkg/action"
+	"helm.sh/helm/pkg/release"
 )
 
-const releaseTestHelp = `
-The test command consists of multiple subcommands around running tests on a release.
+func TestReleaseTestingRun(t *testing.T) {
+	timestamp := time.Unix(1452902400, 0).UTC()
 
-Example usage:
-    $ helm test run [RELEASE]
-
-`
-
-func newReleaseTestCmd(cfg *action.Configuration, out io.Writer) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "test",
-		Short: "test a release or cleanup test artifacts",
-		Long:  releaseTestHelp,
-	}
-	cmd.AddCommand(
-		newReleaseTestRunCmd(cfg, out),
-		//newReleaseTestCleanupCmd(cfg, out), //TODO
-	)
-	return cmd
+	tests := []cmdTestCase{{
+		name: "successful test",
+		cmd:  "test run test-success",
+		rels: []*release.Release{release.Mock(&release.MockReleaseOptions{
+			Name: "test-success",
+			TestSuiteResults: []*release.TestRun{
+				{
+					Name:        "test-success",
+					Status:      release.TestRunSuccess,
+					StartedAt:   timestamp,
+					CompletedAt: timestamp,
+				},
+			},
+		})},
+		golden: "output/test-run-success.txt",
+	}}
+	runTestCmd(t, tests)
 }

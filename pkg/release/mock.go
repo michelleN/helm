@@ -29,6 +29,18 @@ kind: Job
 metadata:
   annotations:
     "helm.sh/hook": pre-install
+spec:
+  containers:
+    - name: containername
+`
+
+// MockTestTemplate is the test hook template used for all mock release objects.
+var MockTestTemplate = `apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod-name
+  annotations:
+    "helm.sh/hook": test-success
 `
 
 // MockManifest is the manifest used for all mock release objects.
@@ -115,6 +127,14 @@ func Mock(opts *MockReleaseOptions) *Release {
 				Manifest: MockHookTemplate,
 				LastRun:  date,
 				Events:   []HookEvent{HookPreInstall},
+			},
+			{
+				Name:     "post-install-test",
+				Kind:     "Pod",
+				Path:     "post-install-test.yaml",
+				Manifest: MockTestTemplate,
+				LastRun:  date,
+				Events:   []HookEvent{HookReleaseTestSuccess},
 			},
 		},
 		Manifest: MockManifest,
