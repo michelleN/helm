@@ -5,3 +5,11 @@ kind: Job
 metadata:
   annotations:
     "helm.sh/hook": pre-install
+---
+# post-install-test
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod-name
+  annotations:
+    "helm.sh/hook": test-success

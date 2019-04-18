@@ -24,6 +24,9 @@ import (
 )
 
 func TestReleaseTestingRun(t *testing.T) {
+	// create a test with a test environment interface
+	//  so I can control what output I am displaying
+
 	timestamp := time.Unix(1452902400, 0).UTC()
 
 	tests := []cmdTestCase{{
@@ -41,6 +44,11 @@ func TestReleaseTestingRun(t *testing.T) {
 			},
 		})},
 		golden: "output/test-run-success.txt",
+	}, {
+		name:      "test error in release name",
+		cmd:       "test run test-invalid-release-name-error-please-because-this-name-is-too-long",
+		wantError: true,
+		golden:    "output/test-run-fail-invalid-release-name.txt",
 	}}
 	runTestCmd(t, tests)
 }

@@ -54,12 +54,11 @@ func NewTestSuite(rel *release.Release) *TestSuite {
 }
 
 // Run executes tests in a test suite and stores a result within a given environment
-func (ts *TestSuite) Run(env *Environment) error {
+func (ts *TestSuite) Run(env TestEnvironment) error {
 	ts.StartedAt = time.Now()
 
 	if len(ts.TestManifests) == 0 {
-		// TODO: make this better, adding test run status on test suite is weird
-		env.streamMessage("No Tests Found", release.TestRunUnknown)
+		env.StreamMessage("No Tests Found", release.TestRunUnknown)
 	}
 
 	for _, testManifest := range ts.TestManifests {
@@ -69,15 +68,16 @@ func (ts *TestSuite) Run(env *Environment) error {
 		}
 
 		test.result.StartedAt = time.Now()
-		if err := env.streamRunning(test.name); err != nil {
+		if err := env.StreamRunning(test.name); err != nil {
 			return err
 		}
 		test.result.Status = release.TestRunRunning
 
 		resourceCreated := true
-		if err := env.createTestPod(test); err != nil {
+
+		if err := env.CreateTestPod(test); err != nil {
 			resourceCreated = false
-			if streamErr := env.streamError(test.result.Info); streamErr != nil {
+			if streamErr := env.StreamError(test.result.Info); streamErr != nil {
 				return err
 			}
 		}
@@ -85,10 +85,10 @@ func (ts *TestSuite) Run(env *Environment) error {
 		resourceCleanExit := true
 		status := v1.PodUnknown
 		if resourceCreated {
-			status, err = env.getTestPodStatus(test)
+			status, err = env.GetTestPodStatus(test)
 			if err != nil {
 				resourceCleanExit = false
-				if streamErr := env.streamError(test.result.Info); streamErr != nil {
+				if streamErr := env.StreamError(test.result.Info); streamErr != nil {
 					return streamErr
 				}
 			}
@@ -99,7 +99,7 @@ func (ts *TestSuite) Run(env *Environment) error {
 				return err
 			}
 
-			if err := env.streamResult(test.result); err != nil {
+			if err := env.StreamResult(test.result); err != nil {
 				return err
 			}
 		}

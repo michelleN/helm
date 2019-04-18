@@ -28,7 +28,7 @@ func TestCreateTestPodSuccess(t *testing.T) {
 	env := testEnvFixture()
 	test := testFixture()
 
-	if err := env.createTestPod(test); err != nil {
+	if err := env.CreateTestPod(test); err != nil {
 		t.Errorf("Expected no error, got an error: %s", err)
 	}
 }
@@ -40,7 +40,7 @@ func TestCreateTestPodFailure(t *testing.T) {
 	}
 	test := testFixture()
 
-	if err := env.createTestPod(test); err == nil {
+	if err := env.CreateTestPod(test); err == nil {
 		t.Errorf("Expected error, got no error")
 	}
 	if test.result.Info == "" {
@@ -57,7 +57,7 @@ func TestStreamMessage(t *testing.T) {
 
 	expectedMessage := "testing streamMessage"
 	expectedStatus := release.TestRunSuccess
-	if err := env.streamMessage(expectedMessage, expectedStatus); err != nil {
+	if err := env.StreamMessage(expectedMessage, expectedStatus); err != nil {
 		t.Errorf("Expected no errors, got: %s", err)
 	}
 
