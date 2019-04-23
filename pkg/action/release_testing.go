@@ -27,16 +27,18 @@ import (
 //
 // It provides the implementation of 'helm test'.
 type ReleaseTesting struct {
-	cfg *Configuration
+	cfg     *Configuration
+	testEnv *reltesting.Environment
 
 	Timeout int64
 	Cleanup bool
 }
 
 // NewReleaseTesting creates a new ReleaseTesting object with the given configuration.
-func NewReleaseTesting(cfg *Configuration) *ReleaseTesting {
+func NewReleaseTesting(cfg *Configuration, testEnv *reltesting.Environment) *ReleaseTesting {
 	return &ReleaseTesting{
-		cfg: cfg,
+		cfg:     cfg,
+		testEnv: testEnv,
 	}
 }
 
@@ -54,14 +56,9 @@ func (r *ReleaseTesting) Run(name string) (<-chan *release.TestReleaseResponse, 
 		errc <- err
 		return nil, errc
 	}
+	r.testEnv.Timeout = r.timeout
+	r.testEnv.Namespace = rel.Namespace
 
-	ch := make(chan *release.TestReleaseResponse, 1)
-	testEnv := &reltesting.Environment{
-		Namespace:  rel.Namespace,
-		KubeClient: r.cfg.KubeClient,
-		Timeout:    r.Timeout,
-		Messages:   ch,
-	}
 	r.cfg.Log("running tests for release %s", rel.Name)
 	tSuite := reltesting.NewTestSuite(rel)
 
@@ -69,7 +66,7 @@ func (r *ReleaseTesting) Run(name string) (<-chan *release.TestReleaseResponse, 
 		defer close(errc)
 		defer close(ch)
 
-		if err := tSuite.Run(testEnv); err != nil {
+		if err := tSuite.Run(r.testEnv); err != nil {
 			errc <- errors.Wrapf(err, "error running test suite for %s", rel.Name)
 			return
 		}
