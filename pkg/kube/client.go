@@ -489,13 +489,17 @@ func scrubValidationError(err error) error {
 	return err
 }
 
-func (c *Client) ListPods(labelsSet map[string]string, namespace string, timeout time.Duration) ([]v1.Pod, error) {
+func (c *Client) ListPods(labelSet map[string]string, namespace string, timeout time.Duration) ([]v1.Pod, error) {
 	client, _ := c.KubernetesClientSet()
 	to := int64(timeout)
 	list, err := client.CoreV1().Pods(c.namespace()).List(metav1.ListOptions{
 		LabelSelector:  fmt.Sprintf("release=%s", "hellopepper"),
 		TimeoutSeconds: &to,
 	})
+	fmt.Printf("list %#v", list)
+	if err != nil {
+		return nil, err
+	}
 	return list.Items, err
 }
 

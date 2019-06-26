@@ -80,3 +80,8 @@ func (p *PrintingKubeClient) BuildUnstructured(_ io.Reader) (Result, error) {
 func (p *PrintingKubeClient) WaitAndGetCompletedPodPhase(_ string, _ time.Duration) (v1.PodPhase, error) {
 	return v1.PodSucceeded, nil
 }
+
+// ListPods implements KubeClient ListPods
+func (p *PrintingKubeClient) ListPods(_ map[string]string, _ string, _ time.Duration) ([]v1.Pod, error) {
+	return []v1.Pod{}, nil
+}

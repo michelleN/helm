@@ -43,6 +43,13 @@ func (env *Environment) Cleanup(name string) error {
 	//  `helm.sh/release: <name>`
 	//  `helm.sh/test-artifact: true`
 	//TODO: delete those pods
+	pods, err := env.KubeClient.ListPods(map[string]string{}, "", env.Timeout)
+	if err != nil {
+		return err
+	}
+	for _, p := range pods {
+		fmt.Println(p.Name)
+	}
 	return nil
 }
 

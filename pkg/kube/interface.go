@@ -61,6 +61,9 @@ type Interface interface {
 	// WaitAndGetCompletedPodPhase waits up to a timeout until a pod enters a completed phase
 	// and returns said phase (PodSucceeded or PodFailed qualify).
 	WaitAndGetCompletedPodPhase(name string, timeout time.Duration) (v1.PodPhase, error)
+
+	// ListPods returns a pods in the given namespace with the given labels
+	ListPods(labelSet map[string]string, namespace string, timeout time.Duration) ([]v1.Pod, error)
 }
 
 var _ Interface = (*Client)(nil)
