@@ -101,31 +101,6 @@ func (c *Client) Wait(reader io.Reader, timeout time.Duration) error {
 	return w.waitForResources(infos)
 }
 
-func (c *Client) namespace() string {
-	if ns, _, err := c.Factory.ToRawKubeConfigLoader().Namespace(); err == nil {
-		return ns
-	}
-	return v1.NamespaceDefault
-}
-
-// newBuilder returns a new resource builder for structured api objects.
-func (c *Client) newBuilder() *resource.Builder {
-	return c.Factory.NewBuilder().
-		ContinueOnError().
-		NamespaceParam(c.namespace()).
-		DefaultNamespace().
-		RequireNamespace().
-		Flatten()
-}
-
-func (c *Client) validator() resource.ContentValidator {
-	schema, err := c.Factory.Validator(true)
-	if err != nil {
-		c.Log("warning: failed to load schema: %s", err)
-	}
-	return schema
-}
-
 // BuildUnstructured validates for Kubernetes objects and returns unstructured infos.
 func (c *Client) BuildUnstructured(reader io.Reader) (Result, error) {
 	result, err := c.newBuilder().
@@ -231,6 +206,31 @@ func (c *Client) Delete(reader io.Reader) error {
 		err := deleteResource(info)
 		return c.skipIfNotFound(err)
 	})
+}
+
+func (c *Client) namespace() string {
+	if ns, _, err := c.Factory.ToRawKubeConfigLoader().Namespace(); err == nil {
+		return ns
+	}
+	return v1.NamespaceDefault
+}
+
+// newBuilder returns a new resource builder for structured api objects.
+func (c *Client) newBuilder() *resource.Builder {
+	return c.Factory.NewBuilder().
+		ContinueOnError().
+		NamespaceParam(c.namespace()).
+		DefaultNamespace().
+		RequireNamespace().
+		Flatten()
+}
+
+func (c *Client) validator() resource.ContentValidator {
+	schema, err := c.Factory.Validator(true)
+	if err != nil {
+		c.Log("warning: failed to load schema: %s", err)
+	}
+	return schema
 }
 
 func (c *Client) skipIfNotFound(err error) error {
@@ -489,7 +489,14 @@ func scrubValidationError(err error) error {
 	return err
 }
 
-func (c *Client) ListPods(labels []string, timeout time.Duration) (v1.PodPhase, error) {
+func (c *Client) ListPods(labelsSet map[string]string, namespace string, timeout time.Duration) ([]v1.Pod, error) {
+	client, _ := c.KubernetesClientSet()
+	to := int64(timeout)
+	list, err := client.CoreV1().Pods(c.namespace()).List(metav1.ListOptions{
+		LabelSelector:  fmt.Sprintf("release=%s", "hellopepper"),
+		TimeoutSeconds: &to,
+	})
+	return list.Items, err
 }
 
 // WaitAndGetCompletedPodPhase waits up to a timeout until a pod enters a completed phase

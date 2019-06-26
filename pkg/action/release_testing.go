@@ -59,7 +59,7 @@ func (r *ReleaseTesting) Cleanup(name string) error {
 		KubeClient: r.cfg.KubeClient,
 		Timeout:    r.Timeout,
 	}
-	return testEnv.DeleteTestPods()
+	return testEnv.Cleanup(rel.Name)
 }
 
 // Run executes 'helm test run' against the given release.
