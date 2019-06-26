@@ -489,6 +489,9 @@ func scrubValidationError(err error) error {
 	return err
 }
 
+func (c *Client) ListPods(labels []string, timeout time.Duration) (v1.PodPhase, error) {
+}
+
 // WaitAndGetCompletedPodPhase waits up to a timeout until a pod enters a completed phase
 // and returns said phase (PodSucceeded or PodFailed qualify).
 func (c *Client) WaitAndGetCompletedPodPhase(name string, timeout time.Duration) (v1.PodPhase, error) {

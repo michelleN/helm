@@ -31,8 +31,8 @@ import (
 type ReleaseTesting struct {
 	cfg *Configuration
 
-	Timeout time.Duration
-	Cleanup bool
+	Timeout       time.Duration
+	CleanupOption bool
 }
 
 // NewReleaseTesting creates a new ReleaseTesting object with the given configuration.
@@ -42,7 +42,27 @@ func NewReleaseTesting(cfg *Configuration) *ReleaseTesting {
 	}
 }
 
-// Run executes 'helm test' against the given release.
+// Cleanup executes 'helm test cleanup' against the given release.
+func (r *ReleaseTesting) Cleanup(name string) error {
+	if err := validateReleaseName(name); err != nil {
+		return err
+	}
+
+	// finds the non-deleted release with the given name
+	rel, err := r.cfg.Releases.Last(name)
+	if err != nil {
+		return err
+	}
+
+	testEnv := &reltesting.Environment{
+		Namespace:  rel.Namespace, //TODO: be able to override namespace
+		KubeClient: r.cfg.KubeClient,
+		Timeout:    r.Timeout,
+	}
+	return testEnv.DeleteTestPods()
+}
+
+// Run executes 'helm test run' against the given release.
 func (r *ReleaseTesting) Run(name string) (<-chan *release.TestReleaseResponse, <-chan error) {
 	errc := make(chan error, 1)
 	if err := validateReleaseName(name); err != nil {
@@ -82,7 +102,7 @@ func (r *ReleaseTesting) Run(name string) (<-chan *release.TestReleaseResponse, 
 			Results:     tSuite.Results,
 		}
 
-		if r.Cleanup {
+		if r.CleanupOption {
 			testEnv.DeleteTestPods(tSuite.Tests)
 		}
 

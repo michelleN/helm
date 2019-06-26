@@ -29,6 +29,7 @@ The test command consists of multiple subcommands around running tests on a rele
 
 Example usage:
     $ helm test run [RELEASE]
+    $ helm test cleanup [RELEASE]
 
 `
 
@@ -40,6 +41,7 @@ func newReleaseTestCmd(cfg *action.Configuration, out io.Writer) *cobra.Command 
 	}
 	cmd.AddCommand(
 		newReleaseTestRunCmd(cfg, out),
+		newReleaseTestCleanupCmd(cfg, out),
 	)
 	return cmd
 }

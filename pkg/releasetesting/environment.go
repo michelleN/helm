@@ -36,6 +36,16 @@ type Environment struct {
 	Timeout    time.Duration
 }
 
+//TODO: make arg []string of names instead of one
+//TODO: add dry run option here
+func (env *Environment) Cleanup(name string) error {
+	//TODO: query for pods with the following labels:
+	//  `helm.sh/release: <name>`
+	//  `helm.sh/test-artifact: true`
+	//TODO: delete those pods
+	return nil
+}
+
 func (env *Environment) createTestPod(test *test) error {
 	b := bytes.NewBufferString(test.manifest)
 	if err := env.KubeClient.Create(b); err != nil {
