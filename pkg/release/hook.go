@@ -31,7 +31,6 @@ const (
 	HookPreRollback        HookEvent = "pre-rollback"
 	HookPostRollback       HookEvent = "post-rollback"
 	HookReleaseTestSuccess HookEvent = "release-test-success"
-	HookReleaseTestFailure HookEvent = "release-test-failure"
 )
 
 func (x HookEvent) String() string { return string(x) }

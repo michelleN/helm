@@ -62,7 +62,6 @@ var events = map[string]release.HookEvent{
 	hooks.PreRollback:        release.HookPreRollback,
 	hooks.PostRollback:       release.HookPostRollback,
 	hooks.ReleaseTestSuccess: release.HookReleaseTestSuccess,
-	hooks.ReleaseTestFailure: release.HookReleaseTestFailure,
 }
 
 // SortManifests takes a map of filename/YAML contents, splits the file

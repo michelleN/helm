@@ -2,23 +2,19 @@
 
 A chart contains a number of Kubernetes resources and components that work together. As a chart author, you may want to write some tests that validate that your chart works as expected when it is installed. These tests also help the chart consumer understand what your chart is supposed to do.
 
-A **test** in a helm chart lives under the `templates/` directory and is a pod definition that specifies a container with a given command to run. The container should exit successfully (exit 0) for a test to be considered a success. The pod definition must contain one of the helm test hook annotations: `helm.sh/hook: test-success` or `helm.sh/hook: test-failure`.
+A **test** in a helm chart lives under the `templates/` directory and is a pod definition that specifies a container with a given command to run. The container should exit successfully (exit 0) for a test to be considered a success. The pod definition must contain one of the helm test hook annotations: `helm.sh/hook: test-success`.
 
 Example tests:
 - Validate that your configuration from the values.yaml file was properly injected.
   - Make sure your username and password work correctly
-  - Make sure an incorrect username and password does not work
 - Assert that your services are up and correctly load balancing
 - etc.
 
 You can run the pre-defined tests in Helm on a release using the command `helm test <RELEASE_NAME>`. For a chart consumer, this is a great way to sanity check that their release of a chart (or application) works as expected.
 
-## A Breakdown of the Helm Test Hooks
+## A Breakdown of the Helm Test Hook
 
-In Helm, there are two test hooks: `test-success` and `test-failure`
-
-`test-success` indicates that test pod should complete successfully. In other words, the containers in the pod should exit 0.
-`test-failure` is a way to assert that a test pod should not complete successfully. If the containers in the pod do not exit 0, that indicates success.
+This hook indicates that test pod should complete successfully. In other words, the containers in the pod should exit 0.
 
 ## Example Test
 
